@@ -1,0 +1,23 @@
+{
+  "name": "localtracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install":"node iohookinstall.js"
+  },
+  "bin": {
+    "localTracker": "./index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "active-win": "^6.1.0",
+    "auto-launch": "^5.0.5",
+    "express": "^4.17.1",
+    "iohook-openb3": "^0.6.5",
+    "moment": "^2.26.0",
+    "systeminformation": "^4.26.5"
+  }
+}
