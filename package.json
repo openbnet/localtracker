@@ -1,13 +1,14 @@
 {
   "name": "localtracker",
-  "version": "0.0.5",
+  "version": "dev",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "localTracker": "./index.js"
+    "localTracker": "./index.js",
+    "install": "node ./iohookinstall.js"
   },
   "author": "",
   "license": "ISC",
