@@ -6,7 +6,7 @@ const sysInfo = require('systeminformation');
 const express = require('express')
 const app = express()
 
-var msInactive = 15000
+var msInactive = 300000
 var timeToCheck = 5000
 
 var lastActive = 0
