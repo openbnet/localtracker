@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const activeWin = require('active-win');
 const moment = require('moment')
-const ioHook = require('iohook-openb3');
+const ioHook = require('iohook');
 const sysInfo = require('systeminformation');
 const express = require('express')
 const app = express()

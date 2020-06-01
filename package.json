@@ -1,6 +1,6 @@
 {
   "name": "localtracker",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "active-win": "^6.1.0",
     "auto-launch": "^5.0.5",
     "express": "^4.17.1",
-    "iohook-openb3": "^0.6.5",
+    "iohook": "^0.6.5",
     "moment": "^2.26.0",
     "systeminformation": "^4.26.5"
   }

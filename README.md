@@ -11,3 +11,6 @@ Any single mouse or keyboard activity will be treated as active.
 
 if you have been inactive for more then 5 mins, your task will be paused?
 
+## test if it works
+
+curl http://localhost:4448//tracker/start?actionId=1234abc
