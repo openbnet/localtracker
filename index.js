@@ -6,42 +6,53 @@ const sysInfo = require('systeminformation');
 const express = require('express')
 const app = express()
 
-
-var msWait = 30000
+var msInactive = 15000
 var timeToCheck = 5000
 
-let activeApp = {}
-let urlTimes = {}
-let intervalId
+var lastActive = 0
+let activeApp = {
+    urlTimes: {},
+    appTimes: {}
+}
+
+let intervalId = null
+let notActive = null
 function getActiveWin() {
     const nowTime = moment().valueOf()
     const activeWIn =  activeWin.sync()
     // console.log("active-win", activeWIn)
 
-    if (nowTime - lastActive > msWait) {
+    if (nowTime - lastActive > msInactive) {
         console.log("user is not active",nowTime - lastActive,activeApp,urlTimes)
+        ioHook.stop();
+        clearInterval(intervalId)
+        intervalId = null
+        notActive = {
+            lastActive
+        }
+        lastActive = 0
     } else {
-        if (activeApp[activeWIn.owner.bundleId] == undefined) {
-            activeApp[activeWIn.owner.bundleId] = timeToCheck
+        if (activeApp.appTimes[activeWIn.owner.bundleId] == undefined) {
+            activeApp.appTimes[activeWIn.owner.bundleId] = timeToCheck
         } else {
-            activeApp[activeWIn.owner.bundleId] = activeApp[activeWIn.owner.bundleId] + timeToCheck
+            activeApp.appTimes[activeWIn.owner.bundleId] = activeApp.appTimes[activeWIn.owner.bundleId] + timeToCheck
         }
         if (activeWIn.url) {
-            if (urlTimes[activeWIn.url] == undefined) {
-                urlTimes[activeWIn.url] = timeToCheck
+            if (activeApp.urlTimes[activeWIn.url] == undefined) {
+                activeApp.urlTimes[activeWIn.url] = timeToCheck
             } else {
-                urlTimes[activeWIn.url]  = urlTimes[activeWIn.url]  +  timeToCheck
+                activeApp.urlTimes[activeWIn.url]  = activeApp.urlTimes[activeWIn.url]  +  timeToCheck
             }
         }
-        console.log("user is active",nowTime - lastActive,activeApp,urlTimes)
+        console.log("user is active",nowTime - lastActive,activeApp)
     }
 }
 
-var lastActive = moment().valueOf()
+
 
 ioHook.on("mousemove", event => {
     const nowTime = moment().valueOf()
-    // if (now - lastActive > msWait) {
+    // if (now - lastActive > msInactive) {
     //     console.log("mousemove no activity for 50000")
         
     // }
@@ -62,21 +73,81 @@ ioHook.on("keydown", event => {
 });
 
 
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Methods","GET,PUT,POST,DELETE,OPTIONS")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    next()
+})
+
+
 app.get('/tracker/start', async (req, res,next) => {
-    console.log("tracker/start",req.headers)
+    console.log("tracker/start",req.query)
+    const { actionId,resume } = req.query
+    if (actionId == undefined) {
+        return res.send({error: "requires actionId query param"})
+    }
+
+    if (activeApp.actionId !== undefined && activeApp.actionId !== actionId) {
+        return res.send({error: "Started action for " + actionId + " but we are tracking " + activeApp.actionId })
+    }
     //Register and stark hook 
+    console.log("tracker start api notActive",notActive,resume)
+    if (notActive !== null && resume == undefined) {
+        res.send(notActive)
+        notActive = null
+        return
+    }
+
+    if (lastActive !== 0 && resume == undefined) {
+        console.log("tracker has already been started")
+        return res.send(activeApp)
+    }
+
+    if (resume !== undefined) {
+        console.log("tracker/start going to resume on ",resume,lastActive,(moment().valueOf() - resume)/1000)
+        lastActive = resume
+    } 
+    if (lastActive == 0) {
+        lastActive = moment().valueOf()
+    }
+    console.log("tracker/start lastActive",lastActive)
+
+
+    
+    activeApp.actionId = actionId
     ioHook.start();
-    intervalId = setInterval(getActiveWin, timeToCheck)
-    res.send(200)
+    if (intervalId == null) {
+        intervalId = setInterval(getActiveWin, timeToCheck)
+    }
+    
+
+    res.send(activeApp)
 })
 
 app.get('/tracker/stop', async (req, res,next) => {
-    console.log("tracker/stop",req.headers)
+    console.log("tracker/stop",req.query)
+    const { actionId } = req.query
+    if (actionId == undefined) {
+        return res.send({error: "requires actionId query param"})
+    }
+    if (activeApp.actionId !== undefined && activeApp.actionId !== actionId) {
+        return res.send({error: "stopping action for " + actionId + " but we are tracking " + activeApp.actionId })
+    }
     //Register and stark hook 
     ioHook.stop();
     clearInterval(intervalId)
+    intervalId = null
+    lastActive = 0
+    
     // setInterval(getActiveWin, timeToCheck)
-    res.send(200)
+    res.send(activeApp)
+    activeApp = {
+        urlTimes: {},
+        appTimes: {}
+    }
+    console.log('tracker/stop activeApp',activeApp)
 })
 
 app.get('/sysInfo/system', async (req, res,next) => {
@@ -97,7 +168,7 @@ app.get('/sysInfo/system', async (req, res,next) => {
         os: sysInfoOs
     })
 })
-    
+
 app.listen(4448).on('error', (err) => {
     console.error("localtracker express error",err)
     throw err
