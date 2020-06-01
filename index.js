@@ -23,7 +23,7 @@ function getActiveWin() {
     // console.log("active-win", activeWIn)
 
     if (nowTime - lastActive > msInactive) {
-        console.log("user is not active",nowTime - lastActive,activeApp,urlTimes)
+        console.log("user is not active",nowTime - lastActive,activeApp)
         ioHook.stop();
         clearInterval(intervalId)
         intervalId = null
