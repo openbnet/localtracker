@@ -1,6 +1,6 @@
 {
   "name": "localtracker",
-  "version": "0.0.7-mac",
+  "version": "0.0.8-mac",
   "description": "",
   "main": "index.js",
   "scripts": {
