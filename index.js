@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 const activeWin = require('active-win');
 const moment = require('moment')
-const ioHook = require('iohook');
+const ioHook = require('iohook-openb3');
 const sysInfo = require('systeminformation');
 const express = require('express')
 const app = express()
 
-var msInactive = 300000
-var timeToCheck = 5000
+let msInactive = 300000
+const timeToCheck = 5000
 
 var lastActive = 0
 let activeApp = {
@@ -84,11 +84,13 @@ app.use((req, res, next) => {
 
 app.get('/tracker/start', async (req, res,next) => {
     console.log("tracker/start",req.query)
-    const { actionId,resume } = req.query
+    const { actionId,resume,inactiveMs} = req.query
     if (actionId == undefined) {
         return res.send({error: "requires actionId query param"})
     }
-
+    if (inactiveMs) {
+        msInactive = inactiveMs
+    }
     if (activeApp.actionId !== undefined && activeApp.actionId !== actionId) {
         return res.send({error: "Started action for " + actionId + " but we are tracking " + activeApp.actionId })
     }
