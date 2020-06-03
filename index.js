@@ -31,7 +31,7 @@ function getActiveWin() {
             lastActive
         }
         lastActive = 0
-    } else if (activeWIn.owner) {
+    } else if (activeWIn && activeWIn.owner) {
         if (activeApp.appTimes[activeWIn.owner.bundleId] == undefined) {
             activeApp.appTimes[activeWIn.owner.bundleId] = timeToCheck
         } else {
