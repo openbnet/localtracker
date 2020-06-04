@@ -8,7 +8,7 @@ const app = express()
 
 let msInactive = 300000
 const timeToCheck = 5000
-
+const version = "0.0.10"
 var lastActive = 0
 let activeApp = {
     urlTimes: {},
@@ -88,6 +88,7 @@ app.get('/tracker/start', async (req, res,next) => {
     if (actionId == undefined) {
         return res.send({error: "requires actionId query param"})
     }
+
     if (inactiveMs) {
         msInactive = inactiveMs
     }
@@ -116,7 +117,7 @@ app.get('/tracker/start', async (req, res,next) => {
     }
     console.log("tracker/start lastActive",lastActive)
 
-
+    activeApp.version = version
     
     activeApp.actionId = actionId
     ioHook.start();
