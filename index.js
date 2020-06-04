@@ -8,7 +8,7 @@ const app = express()
 
 let msInactive = 300000
 const timeToCheck = 5000
-
+const version = "0.0.10"
 var lastActive = 0
 let activeApp = {
     urlTimes: {},
@@ -20,7 +20,7 @@ let notActive = null
 function getActiveWin() {
     const nowTime = moment().valueOf()
     const activeWIn =  activeWin.sync()
-    // console.log("active-win", activeWIn)
+    console.log("active-win", activeWIn)
 
     if (nowTime - lastActive > msInactive) {
         console.log("user is not active",nowTime - lastActive,activeApp)
@@ -32,10 +32,10 @@ function getActiveWin() {
         }
         lastActive = 0
     } else if (activeWIn && activeWIn.owner) {
-        if (activeApp.appTimes[activeWIn.owner.bundleId] == undefined) {
-            activeApp.appTimes[activeWIn.owner.bundleId] = timeToCheck
+        if (activeApp.appTimes[activeWIn.owner.name] == undefined) {
+            activeApp.appTimes[activeWIn.owner.name] = timeToCheck
         } else {
-            activeApp.appTimes[activeWIn.owner.bundleId] = activeApp.appTimes[activeWIn.owner.bundleId] + timeToCheck
+            activeApp.appTimes[activeWIn.owner.name] = activeApp.appTimes[activeWIn.owner.name] + timeToCheck
         }
         if (activeWIn.url) {
             if (activeApp.urlTimes[activeWIn.url] == undefined) {
@@ -88,6 +88,7 @@ app.get('/tracker/start', async (req, res,next) => {
     if (actionId == undefined) {
         return res.send({error: "requires actionId query param"})
     }
+
     if (inactiveMs) {
         msInactive = inactiveMs
     }
@@ -116,7 +117,7 @@ app.get('/tracker/start', async (req, res,next) => {
     }
     console.log("tracker/start lastActive",lastActive)
 
-
+    activeApp.version = version
     
     activeApp.actionId = actionId
     ioHook.start();
