@@ -8,7 +8,7 @@ const app = express()
 
 let msInactive = 300000
 const timeToCheck = 5000
-const version = "0.0.10"
+const version = "0.0.11"
 var lastActive = 0
 let activeApp = {
     urlTimes: {},
